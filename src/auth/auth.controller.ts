@@ -2,20 +2,31 @@ import {
   Body,
   Controller,
   ForbiddenException,
+  HttpCode,
+  HttpStatus,
   InternalServerErrorException,
   NotFoundException,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDTO } from './dto';
 import { Tokens } from './types';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
+import { AtGuard, RtGuard } from 'src/guards';
+import { GetCurrentUser, Public } from 'src/decorators';
+import { GetCurrentUserId } from 'src/decorators/get-user-id.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('/local/signup')
+  @Public()
+  @Post('local/signup')
+  @HttpCode(HttpStatus.CREATED)
   async signUpLocal(@Body() dto: AuthDTO): Promise<Tokens> {
     try {
       return await this.authService.signUpLocal(dto);
@@ -32,7 +43,9 @@ export class AuthController {
     }
   }
 
-  @Post('/local/signin')
+  @Public()
+  @Post('local/signin')
+  @HttpCode(HttpStatus.OK)
   signInLocal(@Body() dto: AuthDTO): Promise<Tokens> {
     try {
       return this.authService.signInLocal(dto);
@@ -49,13 +62,20 @@ export class AuthController {
     }
   }
 
-  @Post('/logout')
-  logout() {
-    this.authService.logout();
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@GetCurrentUserId() userId: string) {
+    return this.authService.logout(userId);
   }
 
-  @Post('/refresh')
-  refreshTokens() {
-    this.authService.refreshTokens();
+  @Public()
+  @UseGuards(RtGuard)
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  refreshTokens(
+    @GetCurrentUserId() userId: string,
+    @GetCurrentUser('refreshToken') refreshToken: string,
+  ) {
+    return this.authService.refreshTokens(userId, refreshToken);
   }
 }

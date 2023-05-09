@@ -54,8 +54,44 @@ export class AuthService {
     await this.updateRtHash(user.id, tokens.refresh_token);
     return tokens;
   }
-  logout() {}
-  refreshTokens() {}
+
+  async logout(userId: string) {
+    await this.prisma.user.updateMany({
+      where: {
+        id: userId,
+        hashRT: {
+          not: null,
+        },
+      },
+      data: {
+        hashRT: null,
+      },
+    });
+  }
+
+  async refreshTokens(userId: string, rt: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user || !user.hashRT) {
+      console.log('no user found');
+      throw new ForbiddenException('Access denied');
+    }
+
+    const rtMatches = await argon.verify(user.hashRT, rt);
+
+    if (!rtMatches) {
+      console.log('rt dont match');
+      throw new ForbiddenException('Access denied');
+    }
+
+    const tokens = await this.generateAuthTokens(user.id, user.email);
+    await this.updateRtHash(user.id, tokens.refresh_token);
+    return tokens;
+  }
 
   async hashData(data: string) {
     return await argon.hash(data);
