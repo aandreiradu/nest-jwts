@@ -26,48 +26,48 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Installation
+## Info
+
+REST API for Authentication using JWT Access & Refresh Tokens.
+
+Available routes:
+
+- POST /local/signup - public route
+- POST /local.signin - public route
+- POST /logout - protected route
+- POST /refresh - public route
+
+## Prequisites
+
+[Docker](https://docs.docker.com/get-docker/)
+[PNPM](https://pnpm.io/)
+
+# Install pnpm using Corepack
+
+corepack enable
+
+If you do not have `corepack` installed locally you can use `npm` or `yarn` to install `pnpm`:
+
+npm install pnpm -g
+
+# or
+
+yarn install pnpm -g
+
+## Local playgroud
+
+From the root:
 
 ```bash
-$ pnpm install
+# Create a .env based on the .env file from .env.example OR run
+
+cp ./.env.example ./.env
+
+# Compose
+docker compose up db -d
+
+# Start server
+pnpm start:dev
+
+
 ```
-
-## Running the app
-
-```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
